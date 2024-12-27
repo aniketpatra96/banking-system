@@ -140,7 +140,7 @@ public class BankDriver {
                         }
                         case 5 -> {
                             System.out.println("\n *************** \n Closing Current User Session  \n*********\n");
-                            System.out.println("************* \n Restarting a new Session ....... \n *************");
+                            System.out.println("************* \n Restarting a new Session ....... \n *************\n");
                             MainDriver.startProcess();
                         }
                         default -> System.out.println("Wrong choice !! Try Again ...");

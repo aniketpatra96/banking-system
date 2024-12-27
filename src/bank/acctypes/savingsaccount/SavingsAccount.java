@@ -282,15 +282,16 @@ public class SavingsAccount {
     public boolean checkSavingsAccount() {
         try{
             con = BankServerConnecter.getDatabaseConnection();
-            smt = con.createStatement();
-            rs = smt.executeQuery("select * from savingsaccount where saccNo = " + accNo);
+            psmt = con.prepareStatement("select * from savingsaccount where saccNo = ?");
+            psmt.setLong(1,accNo);
+            rs = psmt.executeQuery();
             return rs.next();
         }catch (SQLException e) {
             throw new RuntimeException(e.getMessage());
         }finally {
             try{
                 rs.close();
-                smt.close();
+                psmt.close();
                 con.close();
             } catch (SQLException e) {
                 e.printStackTrace();
