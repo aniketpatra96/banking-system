@@ -80,8 +80,11 @@ public class FixedDeposit {
         try{
             con = BankServerConnecter.getDatabaseConnection();
             smt = con.createStatement();
-            rs = smt.executeQuery("select * from fixeddeposit where fdaccNo = " + fdaccNo);
+            rs = smt.executeQuery("select * from fixeddeposit f natural join savingsaccount s where f.saccNo = s.saccNo and fdaccNo = " + fdaccNo);
             if(rs.next()){
+                char gender = rs.getString("gender").charAt(0);
+                String fname = rs.getString("fname");
+                String lname = rs.getString("lname");
                 String nominee = rs.getString("nominee");
                 double amount = rs.getDouble("amount");
                 Timestamp eventTime = rs.getTimestamp("fixedopeningdate");
@@ -95,6 +98,10 @@ public class FixedDeposit {
                 int h = localDateTime.getHour();
                 int m = localDateTime.getMinute();
                 int s = localDateTime.getSecond();
+                if(gender == 'M')
+                    System.out.println("Account Holder :- Mr. " + fname + " " + lname);
+                else
+                    System.out.println("Account Holder :- Mrs./Ms. " + fname + " " + lname);
                 System.out.println("Deposit Amount :- Rs " + amount);
                 System.out.println("Nominee Name :- " + nominee);
                 System.out.println("Term Period :- " + termPeriod);

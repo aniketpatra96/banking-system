@@ -2,6 +2,8 @@ package bank;
 
 import bank.acctypes.fixeddeposit.FixedDeposit;
 import bank.acctypes.fixeddeposit.FixedDepositCreator;
+import bank.acctypes.loanaccount.LoanAccount;
+import bank.acctypes.loanaccount.LoanAccountCreator;
 import bank.acctypes.savingsaccount.SavingsAccount;
 import bank.acctypes.savingsaccount.SavingsAccountCreator;
 
@@ -15,12 +17,43 @@ public class BankDriver {
                     System.out.println("******** Welcome to Bank Menu ********");
                     System.out.println("1. Open New Savings Account");
                     System.out.println("2. Open New Fixed Deposit");
-                    System.out.println("3. Accounts Enquiry");
-                    System.out.println("4. Close Savings Account");
-                    System.out.println("5. End Session");
+                    System.out.println("3. Apply for Loan");
+                    System.out.println("4. Accounts Enquiry");
+                    System.out.println("5. Close Savings Account");
+                    System.out.println("6. End Session");
                     System.out.print("Enter your Choice :- ");
                     switch (sc.nextInt()) {
-                        case 4 -> {
+                        case 3 -> {
+                            double amount,termPeriod;
+                            int loanType;
+                            long saccNo;
+                            System.out.println("******** Loan Account Application ********");
+                            System.out.print("Enter your Savings A/c No. :- ");
+                            saccNo = sc.nextLong();
+                            if(! new SavingsAccount(saccNo).checkSavingsAccount()){
+                                System.out.println("No Savings A/c found for the given account No.\n Note You must have to open a Savings A/c to create a New Loan Account !!");
+                                break;
+                            }
+                            System.out.println("Choose one of the Loan Type given Below");
+                            System.out.println("------------------------------------------------");
+                            System.out.println("1. Apply for House Loan");
+                            System.out.println("2. Apply for Car Loan");
+                            System.out.println("3. Apply for Business Loan");
+                            System.out.println("4. Apply for Education Loan");
+                            System.out.println("5. Apply for Travel Loan");
+                            System.out.print("Enter your choice :- ");
+                            loanType = sc.nextInt();
+                            if(loanType < 1 || loanType > 5) {
+                                System.out.println("Invalid Loan Type !!");
+                                break;
+                            }
+                            System.out.print("Enter the amount of Loan required :- ");
+                            amount = sc.nextDouble();
+                            System.out.print("Enter the term Period for the Loan :- ");
+                            termPeriod = sc.nextDouble();
+                            LoanAccountCreator.createLoanAccount(loanType,amount,termPeriod,saccNo);
+                        }
+                        case 5 -> {
                             System.out.print("Enter your Saving A/c No. :- ");
                             long saccNo = sc.nextLong();
                             SavingsAccount sacc = new SavingsAccount(saccNo);
@@ -64,12 +97,37 @@ public class BankDriver {
                             balance = sc.nextDouble();
                             SavingsAccountCreator.openAccount(fname,lname,nominee,gender,balance);
                         }
-                        case 3 -> {
+                        case 4 -> {
                             System.out.println("***** Welcome to Accounts Section *****");
                             System.out.println("1. Savings Account");
                             System.out.println("2. Fixed Deposit");
+                            System.out.println("3. Loan Account");
                             System.out.print("Enter your choice :- ");
                             switch (sc.nextInt()) {
+                                case 3 -> {
+                                    System.out.print("Enter your  Loan Account A/c No. :- ");
+                                    long laccNo = sc.nextLong();
+                                    LoanAccount l;
+                                    if(!LoanAccount.checkLoanAccount(laccNo)){
+                                        System.out.println("Loan Account does not exist !!!");
+                                        break;
+                                    }
+                                    l = new LoanAccount(laccNo);
+                                    while(true){
+                                        System.out.println("******** Loan Account Menu ********");
+                                        System.out.println("1. Loan status");
+                                        System.out.println("2. Go to previous Menu");
+                                        System.out.print("Enter your choice :- ");
+                                        switch (sc.nextInt()){
+                                            case 2 -> startSession();
+                                            case 1 -> {
+                                                System.out.println("******** Loan Account Details ********");
+                                                l.getLoanDetails();
+                                            }
+                                            default -> System.out.println("Wrong Choice !! Please Try Again !!!");
+                                        }
+                                    }
+                                }
                                 case 1 -> {
                                     System.out.print("Enter your Savings A/c No. :- ");
                                     long accNo = sc.nextLong();
@@ -138,7 +196,7 @@ public class BankDriver {
                                 default -> System.out.println("Wrong choice !! Try Again ...");
                             }
                         }
-                        case 5 -> {
+                        case 6 -> {
                             System.out.println("\n *************** \n Closing Current User Session  \n*********\n");
                             System.out.println("************* \n Restarting a new Session ....... \n *************\n");
                             MainDriver.startProcess();

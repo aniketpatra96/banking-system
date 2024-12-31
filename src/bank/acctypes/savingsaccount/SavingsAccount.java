@@ -25,19 +25,34 @@ public class SavingsAccount {
     }
 
     public double closeFixedDeposits() {
-        double deposit = 0.0;
+        double deposit = 0.0,termPeriod;
+        Timestamp tsmp;
+        long fdaccNo,yearsDeposited;
+        Date timestamp1,timestamp2;
+        LocalDate date1,date2;
         try{
             con = BankServerConnecter.getDatabaseConnection();
-            psmt = con.prepareStatement("select amount,fdaccNo from fixeddeposit where saccNo = ?");
+            psmt = con.prepareStatement("select fdaccNo,amount,fdaccNo,termperiod,fixedopeningdate from fixeddeposit where saccNo = ?");
             psmt.setLong(1,accNo);
             rs = psmt.executeQuery();
             while(rs.next()){
                 deposit += rs.getDouble("amount");
-                psmt = con.prepareStatement("delete from fixeddeposit where fdaccNo = ?");
-                psmt.setLong(1,rs.getLong("fdaccNo"));
-                int stats = psmt.executeUpdate();
-                if(stats == 0)
-                    break;
+                termPeriod = rs.getDouble("termperiod");
+                tsmp = rs.getTimestamp("fixedopeningdate");
+                fdaccNo = rs.getLong("fdaccNo");
+                timestamp1 = new Date();
+                timestamp2 = new Date(tsmp.getTime());
+                date1 = timestamp1.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                date2 = timestamp2.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                yearsDeposited = ChronoUnit.YEARS.between(date2, date1);
+                if(termPeriod - yearsDeposited <= 0) {
+                    psmt = con.prepareStatement("delete from fixeddeposit where fdaccNo = ?");
+                    psmt.setLong(1, rs.getLong("fdaccNo"));
+                    psmt.executeUpdate();
+                }else{
+                    System.out.println("Unable to close the fixed deposit with fdNo :- " + fdaccNo + " as it has not reached its maturity period.");
+                    return Double.NEGATIVE_INFINITY;
+                }
             }
             return deposit;
         }catch(SQLException e){
@@ -58,6 +73,10 @@ public class SavingsAccount {
         double deposit,currentBalance,newBalance;
         try{
             deposit = closeFixedDeposits();
+            if(deposit == Double.NEGATIVE_INFINITY){
+                System.out.println("Unable to close Savings account as One of the Fixed deposit is pending to be matured.\nPlease wait for the maturity of the termperiod of the FD !!");
+                return;
+            }
             currentBalance = fetchBalance();
             newBalance = currentBalance + deposit;
             con = BankServerConnecter.getDatabaseConnection();

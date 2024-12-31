@@ -50,7 +50,7 @@ create table fixeddeposit(
 
 desc fixeddeposit;
 
-insert into fixeddeposit(amount,nominee,openingdate,termperiod,interestrate,saccNo) 
+insert into fixeddeposit(amount,nominee,fixedopeningdate,termperiod,interestrate,saccNo) 
 values (250000.00,'Prithwiraj Chauhan',CURRENT_TIMESTAMP,5,7.15,100021);
 
 select * from fixeddeposit;
@@ -86,3 +86,40 @@ WHERE
     TC.TABLE_SCHEMA = 'savingsaccount'
 LIMIT 0, 1000;
 
+CREATE TABLE LOAN_TYPES(
+  LOAN_TYPE INT PRIMARY KEY,
+  LOAN_NAME VARCHAR(50) NOT NULL,
+  INTEREST_RATE DECIMAL(5,2) NOT NULL
+);
+
+CREATE TABLE LOAN_ACCOUNT(
+  LOAN_NO bigint auto_increment PRIMARY KEY,
+  AMOUNT DECIMAL(10,2) NOT NULL,
+  TERM_PERIOD DECIMAL(5,2) NOT NULL,
+  LOAN_DATE DATETIME NOT NULL,
+  LOAN_TYPE INT NOT NULL,
+  saccNo bigint NOT NULL,
+  foreign key (saccNo) references savingsaccount(saccNo),
+  foreign key (LOAN_TYPE) references LOAN_TYPES(LOAN_TYPE)
+)auto_increment = 10000000;
+
+INSERT INTO LOAN_ACCOUNT(AMOUNT,TERM_PERIOD,LOAN_DATE,LOAN_TYPE,saccNo)
+VALUES(250000,7,CURRENT_TIMESTAMP,4,100000);
+
+INSERT INTO LOAN_TYPES (LOAN_TYPE,LOAN_NAME,INTEREST_RATE)
+VALUES
+   (1,'HOUSE LOAN',7.5),
+   (2,'CAR LOAN',9.3),
+   (3,'BUSINESS LOAN',18),
+   (4,'EDUCATION LOAN',12.5),
+   (5,'TRAVEL LOAN',9.5);
+   
+SELECT * FROM LOAN_ACCOUNT;
+SELECT * FROM LOAN_TYPES;
+
+SELECT * FROM LOAN_ACCOUNT L NATURAL JOIN LOAN_TYPES T WHERE L.LOAN_TYPE = T.LOAN_TYPE;
+
+SELECT *
+FROM LOAN_ACCOUNT L
+JOIN LOAN_TYPES T ON L.LOAN_TYPE = T.LOAN_TYPE
+JOIN SAVINGSACCOUNT S ON L.saccNo = S.saccNo;
